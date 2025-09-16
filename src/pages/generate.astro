@@ -1,0 +1,141 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+    <div class="container mx-auto p-6 space-y-6">
+        <!-- Input section -->
+        <div class="flex gap-4 items-center justify-center">
+            <input 
+                id="user-prompt" 
+                type="text" 
+                placeholder="Describe your SVG..." 
+                class="input input-bordered input-lg flex-1 max-w-md focus:input-primary" 
+            />
+            <button 
+                id="generate-button" 
+                class="btn btn-soft btn-primary btn-lg"
+            >
+                Generate
+            </button>
+        </div>
+
+        <!-- Output section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- SVG Preview -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-header bg-base-200 px-4 py-2">
+                    <h3 class="text-lg font-semibold">SVG Preview</h3>
+                </div>
+                <div class="card-body">
+                    <div 
+                        id="svg-container" 
+                        class="min-h-64 border-2 border-dashed border-base-300 rounded-lg flex items-center justify-center bg-base-50"
+                    >
+                        <span class="text-base-content/50">SVG will appear here</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG Code -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-header bg-base-200 px-4 py-2">
+                    <h3 class="text-lg font-semibold">SVG Code</h3>
+                </div>
+                <div class="card-body">
+                    <pre 
+                        id="svg-output" 
+                        class="bg-base-200 p-4 rounded-lg overflow-auto min-h-64 text-sm"
+                    >SVG code will appear here</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<script>
+    //@ts-nocheck
+    
+    async function generateSVG(prompt) {
+        console.log('Generating SVG for prompt:', prompt);
+        try {
+            const res = await fetch('/api/generateSVG', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+            
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            
+            const data = await res.json();
+            return data.svg;
+        } catch (error) {
+            console.error('Error generating SVG:', error);
+            return '<svg><text x="10" y="20" fill="red">Error generating SVG</text></svg>';
+        }
+    }
+
+    async function handleSubmit() {
+        const promptElement = document.getElementById("user-prompt");
+        const generateButton = document.getElementById("generate-button");
+        const svgContainer = document.getElementById("svg-container");
+        const svgOutput = document.getElementById("svg-output");
+        
+        if (!promptElement || !generateButton || !svgContainer || !svgOutput) {
+            console.error('Required elements not found');
+            return;
+        }
+
+        const prompt = promptElement.value.trim();
+        
+        if (!prompt) {
+            alert('Please enter a prompt');
+            return;
+        }
+
+        console.log('Submitted:', prompt);
+        
+        // Disable button and show loading state
+        generateButton.disabled = true;
+        generateButton.textContent = 'Generating...';
+        svgContainer.innerHTML = '<span class="loading loading-infinity loading-lg"></span>';
+        svgOutput.textContent = 'Generating SVG...';
+
+        try {
+            const svgCode = await generateSVG(prompt);
+            console.log('SVG Code:', svgCode);
+            
+            svgOutput.textContent = svgCode;
+            svgContainer.innerHTML = svgCode;
+        } catch (error) {
+            console.error('Error in handleSubmit:', error);
+            svgContainer.innerHTML = '<span class="text-error">Error generating SVG</span>';
+            svgOutput.textContent = 'Error occurred while generating SVG';
+        } finally {
+            // Re-enable button
+            generateButton.disabled = false;
+            generateButton.textContent = 'Generate';
+        }
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        const generateButton = document.getElementById("generate-button");
+        const promptElement = document.getElementById("user-prompt");
+        
+        if (generateButton) {
+            generateButton.addEventListener("click", handleSubmit);
+        }
+        
+        // Allow Enter key to submit
+        if (promptElement) {
+            promptElement.addEventListener("keypress", (e) => {
+                if (e.key === 'Enter') {
+                    handleSubmit();
+                }
+            });
+        }
+    });
+</script>

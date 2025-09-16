@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
-    "astro": "^5.13.5",
+    "astro": "^5.13.7",
     "daisyui": "^5.1.12",
+    "openai": "^5.20.3",
+    "tailwind": "^4.0.0",
     "tailwindcss": "^4.1.13"
   }
 }
