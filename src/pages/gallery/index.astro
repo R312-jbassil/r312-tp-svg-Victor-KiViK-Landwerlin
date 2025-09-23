@@ -1,0 +1,222 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getSvg } from '../../js/backend.mjs';
+
+// Récupération de tous les SVGs depuis PocketBase
+let svgRecords = [];
+try {
+    svgRecords = await getSvg();
+    console.log('SVG records loaded:', svgRecords.length);
+} catch (error) {
+    console.error('Erreur lors du chargement des SVGs:', error);
+}
+---
+
+<Layout>
+    <div class="container mx-auto p-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-primary mb-2">SVG Gallery</h1>
+            <p class="text-lg text-base-content/70">Découvrez toutes vos créations SVG</p>
+            <div class="divider"></div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats shadow mb-6 w-full">
+            <div class="stat place-items-center">
+                <div class="stat-title">Total des créations</div>
+                <div class="stat-value text-primary">{svgRecords.length}</div>
+                <div class="stat-desc">SVGs générés</div>
+            </div>
+        </div>
+
+        <!-- Gallery Grid -->
+        {svgRecords.length > 0 ? (
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {svgRecords.map((record) => (
+                    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+                        <!-- SVG Preview -->
+                        <figure class="px-4 pt-4">
+                            <div class="w-full h-48 bg-base-200 rounded-lg flex items-center justify-center overflow-hidden">
+                                <div 
+                                    class="max-w-full max-h-full" 
+                                    set:html={record.code_svg}
+                                />
+                            </div>
+                        </figure>
+                        
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <h2 class="card-title text-base">
+                                {record.name || 'SVG sans nom'}
+                                <div class="badge badge-secondary badge-sm">SVG</div>
+                            </h2>
+                            
+                            <!-- Metadata -->
+                            <div class="text-xs text-base-content/60 space-y-1">
+                                <p>Créé le: {new Date(record.created).toLocaleDateString('fr-FR')}</p>
+                                <p>ID: {record.id.substring(0, 8)}...</p>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="card-actions justify-end mt-4">
+                                <button 
+                                    class="btn btn-sm btn-outline btn-primary view-btn"
+                                    data-svg-code={record.code_svg}
+                                    data-svg-name={record.name || 'SVG sans nom'}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Voir
+                                </button>
+                                <button 
+                                    class="btn btn-sm btn-outline btn-success download-btn"
+                                    data-svg-code={record.code_svg}
+                                    data-svg-name={record.name || 'svg'}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Télécharger
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        ) : (
+            <!-- Empty State -->
+            <div class="hero min-h-96">
+                <div class="hero-content text-center">
+                    <div class="max-w-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-24 w-24 text-base-content/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4zM9 3v1h6V3H9zm0 5v8h2V8H9zm4 0v8h2V8h-2z" />
+                        </svg>
+                        <h3 class="text-2xl font-bold text-base-content/70">Aucune création trouvée</h3>
+                        <p class="py-4 text-base-content/50">Vous n'avez pas encore créé de SVG. Commencez par en générer un !</p>
+                        <a href="/generate" class="btn btn-primary">
+                            Créer un SVG
+                        </a>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        <!-- Back to Generator -->
+        <div class="text-center mt-8">
+            <a href="/generate" class="btn btn-outline btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Créer un nouveau SVG
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal pour voir le SVG en grand -->
+    <dialog id="svg_modal" class="modal">
+        <div class="modal-box w-11/12 max-w-4xl">
+            <h3 id="modal-title" class="font-bold text-lg mb-4">Aperçu SVG</h3>
+            <div id="modal-svg-container" class="flex items-center justify-center min-h-96 bg-base-200 rounded-lg p-4">
+                <!-- Le SVG sera injecté ici -->
+            </div>
+            <div class="modal-action">
+                <button id="modal-download" class="btn btn-success">Télécharger</button>
+                <form method="dialog">
+                    <button class="btn">Fermer</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+</Layout>
+
+<script>
+    // Fonction pour télécharger un SVG
+    function downloadSVG(svgCode: string, fileName: string) {
+        const blob = new Blob([svgCode], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${fileName}.svg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Gestion des boutons "Voir"
+    document.addEventListener('DOMContentLoaded', () => {
+        const viewButtons = document.querySelectorAll('.view-btn');
+        const modal = document.getElementById('svg_modal') as HTMLDialogElement;
+        const modalTitle = document.getElementById('modal-title');
+        const modalContainer = document.getElementById('modal-svg-container');
+        const modalDownload = document.getElementById('modal-download');
+        
+        let currentSvgCode = '';
+        let currentSvgName = '';
+
+        viewButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const svgCode = button.getAttribute('data-svg-code') || '';
+                const svgName = button.getAttribute('data-svg-name') || 'SVG';
+                
+                currentSvgCode = svgCode;
+                currentSvgName = svgName;
+                
+                if (modalTitle) modalTitle.textContent = svgName;
+                if (modalContainer) modalContainer.innerHTML = svgCode;
+                
+                modal?.showModal();
+            });
+        });
+
+        // Gestion du téléchargement depuis la modal
+        modalDownload?.addEventListener('click', () => {
+            if (currentSvgCode && currentSvgName) {
+                downloadSVG(currentSvgCode, currentSvgName);
+            }
+        });
+
+        // Gestion des boutons "Télécharger" directs
+        const downloadButtons = document.querySelectorAll('.download-btn');
+        downloadButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const svgCode = button.getAttribute('data-svg-code') || '';
+                const svgName = button.getAttribute('data-svg-name') || 'svg';
+                downloadSVG(svgCode, svgName);
+            });
+        });
+    });
+</script>
+
+<style>
+    /* Animation pour les cartes */
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Style pour les SVGs dans la grille */
+    .card figure svg {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+    }
+
+    /* Style pour les SVGs dans la modal */
+    #modal-svg-container svg {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+    }
+</style>
