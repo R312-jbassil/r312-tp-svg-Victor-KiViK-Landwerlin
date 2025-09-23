@@ -17,7 +17,7 @@ export async function oneSvg(id) {
         const record = await pb.collection('save').getOne(id);
         return record;
     } catch (error) {
-        console.error('Erreur lors de la récupération de l\'enregistrement:', error);
+        console.error("Erreur lors de la récupération de l'enregistrement:", error);
         throw error;
     }
 }
