@@ -11,6 +11,19 @@ import "../styles/global.css";
 		<title>Astro Basics</title>
 	</head>
 	<body class="h-full">
+		<header>
+			<div class="navbar bg-base-100 shadow-sm">
+					<div class="flex-1">
+						<a href="/" class="btn btn-ghost text-xl">accueil</a>
+					</div>
+					<div class="flex gap-8 mr-4">
+						
+						<a href="gallery" class="btn btn-square btn-ghost">gallerie</a>
+						<a href="generate" class="btn btn-square btn-ghost">generateur</a>
+							
+					</div>
+				</div>
+		</header>
 		<div class="h-full flex flex-col min-h-0">
 			<div class="flex-1 min-h-0">
 				<slot />
