@@ -1,16 +1,28 @@
 ---
+///@ts-nocheck
 import Layout from '../../layouts/Layout.astro';
-import { getSvg } from '../../js/backend.mjs';
+import pb from '../../utils/pb';
+import { Collections } from '../../utils/pocketbase-types';
 import { ui } from "../../i18n/ui.js";
 
 const locale = Astro.locals.lang as 'en' | 'fr' ?? 'en';
-console.log('Locale in index:', locale);
+const user = Astro.locals.user; // Récupère l'utilisateur connecté
 
-// Récupération de tous les SVGs depuis PocketBase
+console.log('Locale in gallery:', locale);
+console.log('User in gallery:', user);
+
+// Récupération des SVGs de l'utilisateur connecté uniquement
 let svgRecords = [];
 try {
-    svgRecords = await getSvg();
-    console.log('SVG records loaded:', svgRecords.length);
+    if (user && user.id) {
+        svgRecords = await pb
+            .collection(Collections.Save)
+            .getFullList({
+                sort: "-created", // Trie du plus récent au plus ancien
+                filter: `user = "${user.id}"`, // Filtre pour l'utilisateur connecté
+            });
+        console.log('SVG records loaded for user:', svgRecords.length);
+    }
 } catch (error) {
     console.error('Erreur lors du chargement des SVGs:', error);
 }

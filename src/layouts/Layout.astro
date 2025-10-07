@@ -3,7 +3,9 @@ import "../styles/global.css";
 import { ui } from "../i18n/ui.js";
 
 const locale = Astro.locals.lang as 'en' | 'fr' ?? 'en';
-console.log('Locale in index:', locale);
+const user = Astro.locals.user;
+console.log('Locale in layout:', locale);
+console.log('User in layout:', user);
 ---
 <!doctype html>
 <html lang="en" data-theme="vert" class="h-full">
@@ -12,27 +14,35 @@ console.log('Locale in index:', locale);
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>SVG Generator</title>
 	</head>
 	<body class="h-full">
 		<header>
 			<div class="navbar bg-base-100 shadow-sm">
-					<div class="flex-1">
-						<a href="/" class="btn btn-ghost text-xl">{ui[locale].nav.home}</a>
-					</div>
-					<div class="flex gap-8 mr-4">
-						<form action={Astro.url.pathname} method="POST">
-        					<select name="language" class="select" onchange="this.form.submit()">
-            				<option disabled selected="true">{ui[locale].nav.language}</option>
-            				<option value="en" >English</option>
-            				<option value="fr" >Français</option>
-        					</select>
-    					</form>
-						<a href="gallery" class="btn btn-square btn-ghost">{ui[locale].nav.gallery}</a>
-						<a href="generate" class="btn btn-square btn-ghost">{ui[locale].nav.generator}</a>
-
-					</div>
+				<div class="flex-1">
+					<a href="/" class="btn btn-ghost text-xl">{ui[locale].nav.home}</a>
 				</div>
+				<div class="flex gap-4 mr-4 items-center">
+					<form action={Astro.url.pathname} method="POST">
+						<select name="language" class="select select-sm" onchange="this.form.submit()">
+							<option disabled selected="true">{ui[locale].nav.language}</option>
+							<option value="en">English</option>
+							<option value="fr">Français</option>
+						</select>
+					</form>
+					<a href="/gallery" class="btn btn-ghost btn-sm">{ui[locale].nav.gallery}</a>
+					<a href="/generate" class="btn btn-ghost btn-sm">{ui[locale].nav.generator}</a>
+					
+					{user && (
+						<div class="flex items-center gap-2">
+							<div class="badge badge-primary">{user.email}</div>
+							<form method="POST" action="/api/logout" class="m-0 p-0">
+								<button type="submit" class="btn btn-primary btn-sm">Logout</button>
+							</form>
+						</div>
+					)}
+				</div>
+			</div>
 		</header>
 		<div class="h-full flex flex-col min-h-0">
 			<div class="flex-1 min-h-0">

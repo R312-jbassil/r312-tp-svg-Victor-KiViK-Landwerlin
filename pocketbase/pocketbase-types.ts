@@ -1,6 +1,3 @@
-/**
-* This file was @generated using pocketbase-typegen
-*/
 
 import type PocketBase from 'pocketbase'
 import type { RecordService } from 'pocketbase'
@@ -98,6 +95,7 @@ export type SaveRecord = {
 	id: string
 	name?: string
 	updated?: IsoDateString
+	user?: RecordIdString  // Ajout du champ user (relation)
 }
 
 export type UsersRecord = {
